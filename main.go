@@ -11,6 +11,7 @@ import (
 )
 
 const crlf = "\r\n"
+const timeout = 2        // seconds
 const sleepDuration = 15 // seconds
 
 var headers = []string{
@@ -31,7 +32,7 @@ func usage() {
 func runSlave(target string) {
 	defer wg.Done()
 
-	conn, err := net.DialTimeout("tcp", target+":"+*port, 2*time.Second)
+	conn, err := net.DialTimeout("tcp", target+":"+*port, timeout*time.Second)
 	if err != nil {
 		fmt.Println("Error creating slave")
 		return
