@@ -30,11 +30,10 @@ func usage() {
 }
 
 func runSlave(target string, id int) {
-	defer wg.Done()
-
 	conn, err := net.DialTimeout("tcp", target+":"+*port, timeout*time.Second)
 	if err != nil {
 		fmt.Printf("[%v] Error creating slave\n", id)
+		wg.Done()
 		return
 	}
 	// send headers
@@ -42,6 +41,7 @@ func runSlave(target string, id int) {
 		_, err = fmt.Fprint(conn, header+crlf)
 		if err != nil {
 			fmt.Printf("[%v] Error sending headers\n", id)
+			wg.Done()
 			return
 		}
 	}
