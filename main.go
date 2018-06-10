@@ -39,7 +39,11 @@ func runSlave(target string) {
 	}
 	// send headers
 	for _, header := range headers {
-		fmt.Fprint(conn, header+crlf)
+		_, err = fmt.Fprint(conn, header+crlf)
+		if err != nil {
+			fmt.Println("Error sending headers")
+			return
+		}
 	}
 
 	for {
